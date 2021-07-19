@@ -23,6 +23,7 @@ class DQNAgent:
         raise NotImplemented('Do not use the superclass')
 
     def replay(self, batch_size):
+        # TODO: Implement this
         raise NotImplemented('Do I need to specify this function for each sub-class?')
 
     def append_experience(self, state, action, reward, next_state, done):
@@ -92,6 +93,7 @@ class ImageAgent(DQNAgent):
         model.summary()
 
     def prepare_image(self, image):
+        # TODO: Is image an OpenCv Image?
         image = cv2.resize(image, self.new_image_size, interpolation=cv2.INTER_AREA)
         image = np.array(image)
         image = image.astype(float)
