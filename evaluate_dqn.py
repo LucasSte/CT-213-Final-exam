@@ -2,7 +2,7 @@ import os
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
-from dqn_agent import DQNAgent
+from dqn_agent import DQNAgent, RAMAgent
 from utils import reward_engineering_space_invaders
 import tensorflow as tf
 
@@ -32,12 +32,16 @@ state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 
 # Creating the DQN agent (with greedy policy, suited for evaluation)
-agent = DQNAgent(state_size, action_size, epsilon=0.0, epsilon_min=0.0)
+# agent = DQNAgent(state_size, action_size, epsilon=0.0, epsilon_min=0.0)
+
+# Creating the DQN agent
+agent = RAMAgent(state_size, action_size)
+# agent = ImageAgent(state_size, action_size)
 
 # Checking if weights from previous learning session exists
-if os.path.exists('space_invaders.h5'):
+if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
     print('Loading weights from previous learning session.')
-    agent.load("space_invaders.h5")
+    agent.load(agent.__class__.__name__, "space_invaders.h5")
 else:
     print('No weights found from previous learning session. Unable to proceed.')
     exit(-1)
@@ -77,7 +81,7 @@ print('Mean return: ', np.mean(return_history))
 plt.plot(return_history, 'b')
 plt.xlabel('Episode')
 plt.ylabel('Return')
-plt.savefig('dqn_evaluation.' + fig_format, fig_format=fig_format)
+plt.savefig('dqn_evaluation.' + fig_format, format=fig_format)
 
 # Plots the greedy policy learned by DQN
 plt.figure()
