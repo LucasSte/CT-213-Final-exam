@@ -5,8 +5,8 @@ import numpy as np
 from utils import create_env_agent, reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
-NUM_EPISODES = 5
-RENDER = True  # please change to false after
+NUM_EPISODES = 500
+RENDER = False  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
 
@@ -54,8 +54,8 @@ for episodes in range(1, NUM_EPISODES + 1):
                   .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon))
             break
         # We only update the policy if we already have enough experience in memory
-        #if len(agent.replay_buffer) > 2 * batch_size:
-        #    loss = agent.replay(batch_size)
+        # if len(agent.replay_buffer) > 2 * batch_size:
+        #     loss = agent.replay(batch_size)
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     # Every 10 episodes, update the plot for training monitoring
