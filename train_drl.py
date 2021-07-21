@@ -5,7 +5,7 @@ import numpy as np
 from utils import reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
-NUM_EPISODES = 300
+NUM_EPISODES = 5
 RENDER = True  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
@@ -24,9 +24,9 @@ agent = RAMAgent(state_size, action_size)
 # agent = ImageAgent(state_size, action_size)
 
 # Checking if weights from previous learning session exists
-if os.path.exists('space_invaders.h5'):
+if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
     print('Loading weights from previous learning session.')
-    agent.load("space_invaders.h5")
+    agent.load(agent.__class__.__name__, "space_invaders.h5")
 else:
     print('No weights found from previous learning session.')
 done = False
@@ -50,7 +50,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Reshaping to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])
         # Making reward engineering to allow faster training
-        reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
+        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
         # Appending this experience to the experience replay buffer
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
@@ -61,12 +61,12 @@ for episodes in range(1, NUM_EPISODES + 1):
                   .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon))
             break
         # We only update the policy if we already have enough experience in memory
-        if len(agent.replay_buffer) > 2 * batch_size:
-            loss = agent.replay(batch_size)
+        # if len(agent.replay_buffer) > 2 * batch_size:
+        #     loss = agent.replay(batch_size)
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     # Every 10 episodes, update the plot for training monitoring
-    if episodes % 20 == 0:
+    if episodes % 5 == 0:
         plt.plot(return_history, 'b')
         plt.xlabel('Episode')
         plt.ylabel('Return')
@@ -74,7 +74,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         plt.pause(0.1)
         plt.savefig('dqn_training.' + fig_format, fig_format=fig_format)
         # Saving the model to disk
-        agent.save("space_invaders.h5")
+        agent.save(agent.__class__.__name__, "space_invaders.h5")
 # plt.pause(1.0)
 
 
