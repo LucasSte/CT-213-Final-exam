@@ -2,7 +2,7 @@ import os
 import gym
 from dqn_agent import ImageAgent, RAMAgent
 import numpy as np
-from utils import reward_engineering_space_invaders
+from utils import create_env_agent
 import matplotlib.pyplot as plt
 
 NUM_EPISODES = 5
@@ -14,14 +14,10 @@ fig_format = 'eps'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
-# env = gym.make('SpaceInvaders-ram-v0')
-env = gym.make('SpaceInvaders-v0')
-state_size = env.observation_space.shape[0]
-action_size = env.action_space.n
+# env, agent = create_env_agent('SpaceInvaders-ram-v0')
+env, agent = create_env_agent('SpaceInvaders-v0')
 
-# Creating the DQN agent
-# agent = RAMAgent(state_size, action_size)
-agent = ImageAgent(state_size, action_size)
+
 
 # Checking if weights from previous learning session exists
 if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
@@ -36,9 +32,6 @@ return_history = []
 for episodes in range(1, NUM_EPISODES + 1):
     # Reset the environment
     state = env.reset()
-    # This reshape is needed to keep compatibility with Keras
-    if isinstance(agent, RAMAgent):
-        state = np.reshape(state, [1, state_size])
     # Cumulative reward is the return since the beginning of the episode
     cumulative_reward = 0.0
     for time in range(1, 5000):
@@ -49,8 +42,6 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Take action, observe reward and new state
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
-        if isinstance(agent, RAMAgent):
-            next_state = np.reshape(next_state, [1, state_size])
         # Making reward engineering to allow faster training
         # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
         # Appending this experience to the experience replay buffer

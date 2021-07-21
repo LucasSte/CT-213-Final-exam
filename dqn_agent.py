@@ -81,10 +81,11 @@ class RAMAgent(DQNAgent):
         return model
 
     def append_experience(self, state, action, reward, next_state, done):
-        self.replay_buffer.append((state, action, reward, next_state, done))
+        self.replay_buffer.append((np.reshape(state, [1, self.state_size]), action, reward, next_state, done))
 
     def act(self, input):
 
+        input = np.reshape(input, [1, self.state_size])
         q = self.model.predict(input)
         prob = np.random.uniform(0, 1)
         if prob < self.epsilon:
