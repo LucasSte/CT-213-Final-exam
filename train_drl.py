@@ -6,22 +6,22 @@ from utils import reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
 NUM_EPISODES = 5
-RENDER = True  # please change to false after
+RENDER = False  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
 
 # Comment this line to enable training using your GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
-env = gym.make('SpaceInvaders-ram-v0')
-# env = gym.make('SpaceInvaders-v0')
+# env = gym.make('SpaceInvaders-ram-v0')
+env = gym.make('SpaceInvaders-v0')
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 
 # Creating the DQN agent
-agent = RAMAgent(state_size, action_size)
-# agent = ImageAgent(state_size, action_size)
+# agent = RAMAgent(state_size, action_size)
+agent = ImageAgent(state_size, action_size)
 
 # Checking if weights from previous learning session exists
 if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
@@ -37,7 +37,8 @@ for episodes in range(1, NUM_EPISODES + 1):
     # Reset the environment
     state = env.reset()
     # This reshape is needed to keep compatibility with Keras
-    state = np.reshape(state, [1, state_size])
+    if isinstance(agent, RAMAgent):
+        state = np.reshape(state, [1, state_size])
     # Cumulative reward is the return since the beginning of the episode
     cumulative_reward = 0.0
     for time in range(1, 5000):
@@ -48,7 +49,8 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Take action, observe reward and new state
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
-        next_state = np.reshape(next_state, [1, state_size])
+        if isinstance(agent, RAMAgent):
+            next_state = np.reshape(next_state, [1, state_size])
         # Making reward engineering to allow faster training
         # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
         # Appending this experience to the experience replay buffer
@@ -72,7 +74,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         plt.ylabel('Return')
         plt.show(block=False)
         plt.pause(0.1)
-        plt.savefig('dqn_training.' + fig_format, fig_format=fig_format)
+        plt.savefig('dqn_training.' + fig_format, format=fig_format)
         # Saving the model to disk
         agent.save(agent.__class__.__name__, "space_invaders.h5")
 # plt.pause(1.0)
