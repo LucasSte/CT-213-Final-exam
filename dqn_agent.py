@@ -2,6 +2,7 @@ from collections import deque
 from tensorflow.keras import models, layers, losses, optimizers
 import cv2
 import numpy as np
+import random
 
 
 class DQNAgent:
@@ -17,6 +18,7 @@ class DQNAgent:
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
         self.learning_rate = learning_rate
+        self.model = self.make_model()
 
     def act(self, state):
         raise NotImplemented('Do not use the superclass')
@@ -25,14 +27,31 @@ class DQNAgent:
         self.replay_buffer.append((state, action, reward, next_state, done))
 
     def replay(self, batch_size):
-        # TODO: Implement this
-        raise NotImplemented('Do I need to specify this function for each sub-class?')
+        """
+        Learns from memorized experience.
+        """
+        minibatch = random.sample(self.replay_buffer, batch_size)
+        states, targets = [], []
+        for state, action, reward, next_state, done in minibatch:
+            target = self.model.predict(state)
+            if not done:
+                target[0][action] = reward + self.gamma * np.max(self.model.predict(next_state)[0])
+            else:
+                target[0][action] = reward
+            # Filtering out states and targets for training
+            states.append(state[0])
+            targets.append(target[0])
+        history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
+        # Keeping track of loss
+        loss = history.history['loss'][0]
+        return loss
+        # raise NotImplemented('Do I need to specify this function for each sub-class?')
 
-    def load(self, name):
-        self.model.load_weights(name)
+    def load(self, agent, game):
+        self.model.load_weights(agent + game)
 
-    def save(self, name):
-        self.model.save_weights(name)
+    def save(self, agent, game):
+        self.model.save_weights(agent + game)
 
     def update_epsilon(self):
         self.epsilon *= self.epsilon_decay
@@ -51,7 +70,7 @@ class RAMAgent(DQNAgent):
                  learning_rate=0.001, buffer_size=4098):
         DQNAgent.__init__(self, state_size, action_size, gamma, epsilon, epsilon_min, epsilon_decay, learning_rate,
                           buffer_size)
-        self.model = self.make_model();
+        self.model = self.make_model()
 
     def make_model(self):
         model = models.Sequential()
@@ -59,7 +78,7 @@ class RAMAgent(DQNAgent):
         model.add(layers.Dense(1024, activation='relu'))
         model.add(layers.Dense(128, activation='relu'))
         model.add(layers.Dense(self.action_size, activation='linear'))
-        model.compile(loss=losses.mse, optimizer=optimizers.Adam(lr=self.learning_rate))
+        model.compile(loss=losses.mse, optimizer=optimizers.Adam(learning_rate=self.learning_rate))
         model.summary()
         return model
 
@@ -76,7 +95,7 @@ class RAMAgent(DQNAgent):
 
 class ImageAgent(DQNAgent):
     new_image_size = (105, 80)
-    color_space = 255  # TODO: 255 or 127?
+    color_space = 255  # Todo: 255 or 127?
 
     def __init__(self, state_size, action_size, gamma=0.95, epsilon=0.5,
                  epsilon_min=0.01, epsilon_decay=0.98, learning_rate=0.001,
@@ -96,7 +115,7 @@ class ImageAgent(DQNAgent):
         model.summary()
 
     def prepare_image(self, image):
-        # TODO: Is image an OpenCv Image?
+        # Todo: Is image an OpenCv Image?
         image = cv2.resize(image, self.new_image_size, interpolation=cv2.INTER_AREA)
         image = np.array(image)
         image = image.astype(float)
