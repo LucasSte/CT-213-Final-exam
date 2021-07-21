@@ -2,8 +2,8 @@ import gym
 from dqn_agent import RAMAgent, ImageAgent
 
 def reward_engineering_space_invaders(state, action, reward, next_state, done):
-    return 0
-    # pass
+    """cada inimigo a menos contabiliza 5pts. Cada vida perdida cotabiliza -20pts"""
+    return reward + (36 - state[17]) * 5 + (3 - state[73]) * 20
 
 def create_env_agent(env_type: str):
     env = gym.make(env_type)

@@ -2,11 +2,11 @@ import os
 import gym
 from dqn_agent import ImageAgent, RAMAgent
 import numpy as np
-from utils import create_env_agent
+from utils import create_env_agent, reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
 NUM_EPISODES = 5
-RENDER = False  # please change to false after
+RENDER = True  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
 
@@ -14,8 +14,8 @@ fig_format = 'eps'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
-# env, agent = create_env_agent('SpaceInvaders-ram-v0')
-env, agent = create_env_agent('SpaceInvaders-v0')
+env, agent = create_env_agent('SpaceInvaders-ram-v0')
+# env, agent = create_env_agent('SpaceInvaders-v0')
 
 
 
@@ -43,7 +43,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
         # Making reward engineering to allow faster training
-        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
+        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done)
         # Appending this experience to the experience replay buffer
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
@@ -54,8 +54,8 @@ for episodes in range(1, NUM_EPISODES + 1):
                   .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon))
             break
         # We only update the policy if we already have enough experience in memory
-        # if len(agent.replay_buffer) > 2 * batch_size:
-        #     loss = agent.replay(batch_size)
+        #if len(agent.replay_buffer) > 2 * batch_size:
+        #    loss = agent.replay(batch_size)
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     # Every 10 episodes, update the plot for training monitoring
@@ -68,7 +68,3 @@ for episodes in range(1, NUM_EPISODES + 1):
         plt.savefig('dqn_training.' + fig_format, format=fig_format)
         # Saving the model to disk
         agent.save(agent.__class__.__name__, "space_invaders.h5")
-# plt.pause(1.0)
-
-
-# agent.make_model()

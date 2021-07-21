@@ -56,11 +56,6 @@ class DQNAgent:
         if self.epsilon < self.epsilon_min:
             self.epsilon = self.epsilon_min
 
-    def update_epsilon(self):
-        self.epsilon *= self.epsilon_decay
-        if self.epsilon < self.epsilon_min:
-            self.epsilon = self.epsilon_min
-
 
 class RAMAgent(DQNAgent):
 
