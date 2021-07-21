@@ -1,6 +1,4 @@
 import os
-import gym
-from dqn_agent import ImageAgent, RAMAgent
 import numpy as np
 from utils import create_env_agent
 import matplotlib.pyplot as plt
@@ -40,11 +38,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Select action
         action = agent.act(state)
         # Take action, observe reward and new state
-        next_state, reward, done, _ = env.step(action)
-        # Reshaping to keep compatibility with Keras
-        # Making reward engineering to allow faster training
-        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
-        # Appending this experience to the experience replay buffer
+        next_state, reward, done, info = env.step(action)
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
         # Accumulate reward
@@ -54,8 +48,8 @@ for episodes in range(1, NUM_EPISODES + 1):
                   .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon))
             break
         # We only update the policy if we already have enough experience in memory
-        # if len(agent.replay_buffer) > 2 * batch_size:
-        #     loss = agent.replay(batch_size)
+        if len(agent.replay_buffer) > 2 * batch_size:
+            loss = agent.replay(batch_size)
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     # Every 10 episodes, update the plot for training monitoring

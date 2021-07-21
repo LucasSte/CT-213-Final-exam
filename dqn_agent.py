@@ -31,13 +31,13 @@ class DQNAgent:
         minibatch = random.sample(self.replay_buffer, batch_size)
         states, targets = [], []
         for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(state)
+            target = self.model.predict(self.prepare_state(state))
             if not done:
-                target[0][action] = reward + self.gamma * np.max(self.model.predict(next_state)[0])
+                target[0][action] = reward + self.gamma * np.max(self.model.predict(self.prepare_state(next_state))[0])
             else:
                 target[0][action] = reward
             # Filtering out states and targets for training
-            states.append(state[0])
+            states.append(state)
             targets.append(target[0])
         history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
         # Keeping track of loss
@@ -56,10 +56,12 @@ class DQNAgent:
         if self.epsilon < self.epsilon_min:
             self.epsilon = self.epsilon_min
 
-    def update_epsilon(self):
-        self.epsilon *= self.epsilon_decay
-        if self.epsilon < self.epsilon_min:
-            self.epsilon = self.epsilon_min
+    def append_experience(self, state, action, reward, next_state, done):
+        self.replay_buffer.append((state, action, reward,
+                                   next_state, done))
+
+    def prepare_state(self, state):
+        raise NotImplemented("Do not use the superclass.")
 
 
 class RAMAgent(DQNAgent):
@@ -80,8 +82,8 @@ class RAMAgent(DQNAgent):
         model.summary()
         return model
 
-    def append_experience(self, state, action, reward, next_state, done):
-        self.replay_buffer.append((np.reshape(state, [1, self.state_size]), action, reward, next_state, done))
+    def prepare_state(self, state):
+        return np.reshape(state, (1, self.state_size))
 
     def act(self, input):
 
@@ -93,6 +95,8 @@ class RAMAgent(DQNAgent):
             return np.random.randint(0, sp[1])
         else:
             return np.argmax(q[0, :])
+
+
 
 
 class ImageAgent(DQNAgent):
@@ -120,20 +124,17 @@ class ImageAgent(DQNAgent):
 
         return model
 
-    def prepare_image(self, image):
+    def prepare_state(self, state):
         #image = cv2.resize(image, self.new_image_size, interpolation=cv2.INTER_AREA)
-        image = np.array(image)
+        image = np.array(state)
         image = image.astype(float)
         image = image / self.color_space
         image = image.reshape((1, self.new_image_size[1], self.new_image_size[0], 3))
         return image
 
-    def append_experience(self, state, action, reward, next_state, done):
-        self.replay_buffer.append((self.prepare_image(state), action, reward, next_state, done))
-
     def act(self, input):
 
-        img = self.prepare_image(input)
+        img = self.prepare_state(input)
         q = self.model.predict(img)
         prob = np.random.uniform(0, 1)
         if prob < self.epsilon:
