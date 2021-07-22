@@ -55,7 +55,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
         # Making reward engineering to keep compatibility with how training was done
-        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
+        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done, agent.agentType)
         state = next_state
         # Accumulate reward
         cumulative_reward = agent.gamma * cumulative_reward + reward

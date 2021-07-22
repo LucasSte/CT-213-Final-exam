@@ -3,7 +3,7 @@ import numpy as np
 from utils import create_env_agent, reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
-NUM_EPISODES = 5
+NUM_EPISODES = 500
 RENDER = False  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
@@ -12,8 +12,8 @@ fig_format = 'eps'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
-# env, agent = create_env_agent('SpaceInvaders-ram-v0')
-env, agent = create_env_agent('SpaceInvaders-v0')
+env, agent = create_env_agent('SpaceInvaders-ram-v0')
+# env, agent = create_env_agent('SpaceInvaders-v0')
 
 
 
@@ -35,7 +35,7 @@ for episodes in range(1, NUM_EPISODES + 1):
             env.render()  # Render the environment for visualization
         action = agent.act(state)
         next_state, reward, done, _ = env.step(action)
-        # reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done)
+        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done, agent.agentType)
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
         cumulative_reward = agent.gamma * cumulative_reward + reward
