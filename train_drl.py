@@ -24,7 +24,7 @@ if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
 else:
     print('No weights found from previous learning session.')
 done = False
-batch_size = 32  # batch size used for the experience replay
+batch_size = 16  # batch size used for the experience replay
 return_history = []
 
 for episodes in range(1, NUM_EPISODES + 1):
@@ -54,6 +54,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         # We only update the policy if we already have enough experience in memory
         if len(agent.replay_buffer) > 2 * batch_size:
             loss = agent.replay(batch_size)
+        print('Time: ', time, ' Episode: ', episodes)
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     # Every 10 episodes, update the plot for training monitoring

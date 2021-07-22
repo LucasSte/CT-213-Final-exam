@@ -29,16 +29,19 @@ class DQNAgent:
         Learns from memorized experience.
         """
         minibatch = random.sample(self.replay_buffer, batch_size)
-        states, targets = [], []
-        for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(self.prepare_state(state))
+        states = [i[0] for i in minibatch]
+        targets = self.model.predict(np.array(states))
+        next_states = [i[3] for i in minibatch]
+        next_prediction = self.model.predict(np.array(next_states))
+
+        for idx, item in enumerate(minibatch):
+            state, action, reward, next_state, done = item
+            target = targets[idx]
             if not done:
-                target[0][action] = reward + self.gamma * np.max(self.model.predict(self.prepare_state(next_state))[0])
+                next_state = np.reshape(next_state, [1, self.state_size])
+                target[0][action] = reward + self.gamma * np.max(next_prediction[idx][0])
             else:
                 target[0][action] = reward
-            # Filtering out states and targets for training
-            states.append(state)
-            targets.append(target[0])
         history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
         # Keeping track of loss
         loss = history.history['loss'][0]
