@@ -41,7 +41,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
         # Making reward engineering to allow faster training
-        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done)
+        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done, agent.agentType)
         # Appending this experience to the experience replay buffer
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state

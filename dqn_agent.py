@@ -71,6 +71,7 @@ class RAMAgent(DQNAgent):
         DQNAgent.__init__(self, state_size, action_size, gamma, epsilon, epsilon_min, epsilon_decay, learning_rate,
                           buffer_size)
         self.model = self.make_model()
+        self.agentType = "RAM"
 
     def make_model(self):
         model = models.Sequential()
@@ -110,6 +111,7 @@ class ImageAgent(DQNAgent):
         DQNAgent.__init__(self, state_size, action_size, gamma, epsilon, epsilon_min,
                           epsilon_decay, learning_rate, buffer_size)
         self.model = self.make_model()
+        self.agentType = "Image"
 
     def make_model(self):
         model = models.Sequential()
