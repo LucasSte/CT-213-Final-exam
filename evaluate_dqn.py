@@ -20,7 +20,6 @@ RENDER = False
 NUM_EPISODES = 20  # Number of episodes used for evaluation
 # fig_format = 'png'  # Format used for saving matplotlib's figures
 fig_format = 'eps'
-# fig_format = 'svg'
 
 # Comment this line to enable training using your GPU
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'

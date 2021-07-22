@@ -1,9 +1,9 @@
 import os
 import numpy as np
-from utils import create_env_agent
+from utils import create_env_agent, reward_engineering_space_invaders
 import matplotlib.pyplot as plt
 
-NUM_EPISODES = 5
+NUM_EPISODES = 500
 RENDER = False  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
@@ -12,8 +12,8 @@ fig_format = 'eps'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
-# env, agent = create_env_agent('SpaceInvaders-ram-v0')
-env, agent = create_env_agent('SpaceInvaders-v0')
+env, agent = create_env_agent('SpaceInvaders-ram-v0')
+# env, agent = create_env_agent('SpaceInvaders-v0')
 
 
 
@@ -38,7 +38,11 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Select action
         action = agent.act(state)
         # Take action, observe reward and new state
-        next_state, reward, done, info = env.step(action)
+        next_state, reward, done, _ = env.step(action)
+        # Reshaping to keep compatibility with Keras
+        # Making reward engineering to allow faster training
+        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done)
+        # Appending this experience to the experience replay buffer
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
         # Accumulate reward
@@ -62,7 +66,3 @@ for episodes in range(1, NUM_EPISODES + 1):
         plt.savefig('dqn_training.' + fig_format, format=fig_format)
         # Saving the model to disk
         agent.save(agent.__class__.__name__, "space_invaders.h5")
-# plt.pause(1.0)
-
-
-# agent.make_model()
