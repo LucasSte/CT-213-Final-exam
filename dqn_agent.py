@@ -25,25 +25,23 @@ class DQNAgent:
         raise NotImplemented('Do not use the superclass')
 
     def replay(self, batch_size):
-        """
-        Learns from memorized experience.
-        """
         minibatch = random.sample(self.replay_buffer, batch_size)
-        states, targets = [], []
-        for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(self.prepare_state(state))
+        states = np.array([i[0] for i in minibatch])
+        targets = self.model.predict(states)
+        next_states = [i[3] for i in minibatch]
+        next_prediction = self.model.predict(np.array(next_states))
+
+        for idx, item in enumerate(minibatch):
+            state, action, reward, next_state, done = item
             if not done:
-                target[0][action] = reward + self.gamma * np.max(self.model.predict(self.prepare_state(next_state))[0])
+                targets[idx][action] = reward + self.gamma * np.max(next_prediction[idx])
             else:
-                target[0][action] = reward
+                targets[idx][action] = reward
             # Filtering out states and targets for training
-            states.append(state)
-            targets.append(target[0])
-        history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
+        history = self.model.fit(states, targets, epochs=1, verbose=1)
         # Keeping track of loss
         loss = history.history['loss'][0]
         return loss
-        # raise NotImplemented('Do I need to specify this function for each sub-class?')
 
     def load(self, agent, game):
         self.model.load_weights(agent + game)

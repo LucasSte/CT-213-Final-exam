@@ -22,7 +22,7 @@ NUM_EPISODES = 20  # Number of episodes used for evaluation
 fig_format = 'eps'
 
 # Comment this line to enable training using your GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 tf.compat.v1.disable_eager_execution()
 
