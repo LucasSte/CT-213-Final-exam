@@ -59,6 +59,13 @@ class DQNAgent:
         if self.epsilon < self.epsilon_min:
             self.epsilon = self.epsilon_min
 
+    def append_experience(self, state, action, reward, next_state, done):
+        self.replay_buffer.append((state, action, reward,
+                                   next_state, done))
+
+    def prepare_state(self, state):
+        raise NotImplemented("Do not use the superclass.")
+
 
 class RAMAgent(DQNAgent):
 
@@ -67,6 +74,7 @@ class RAMAgent(DQNAgent):
         DQNAgent.__init__(self, state_size, action_size, gamma, epsilon, epsilon_min, epsilon_decay, learning_rate,
                           buffer_size)
         self.model = self.make_model()
+        self.agentType = "RAM"
 
     def make_model(self):
         model = models.Sequential()
@@ -78,8 +86,8 @@ class RAMAgent(DQNAgent):
         model.summary()
         return model
 
-    def append_experience(self, state, action, reward, next_state, done):
-        self.replay_buffer.append((np.reshape(state, [1, self.state_size]), action, reward, next_state, done))
+    def prepare_state(self, state):
+        return np.reshape(state, (1, self.state_size))
 
     def act(self, input):
 
@@ -93,6 +101,8 @@ class RAMAgent(DQNAgent):
             return np.argmax(q[0, :])
 
 
+
+
 class ImageAgent(DQNAgent):
     #new_image_size = (80, 105)
     new_image_size = (160, 210)
@@ -104,6 +114,7 @@ class ImageAgent(DQNAgent):
         DQNAgent.__init__(self, state_size, action_size, gamma, epsilon, epsilon_min,
                           epsilon_decay, learning_rate, buffer_size)
         self.model = self.make_model()
+        self.agentType = "Image"
 
     def make_model(self):
         model = models.Sequential()
@@ -118,20 +129,17 @@ class ImageAgent(DQNAgent):
 
         return model
 
-    def prepare_image(self, image):
+    def prepare_state(self, state):
         #image = cv2.resize(image, self.new_image_size, interpolation=cv2.INTER_AREA)
-        image = np.array(image)
+        image = np.array(state)
         image = image.astype(float)
         image = image / self.color_space
         image = image.reshape((1, self.new_image_size[1], self.new_image_size[0], 3))
         return image
 
-    def append_experience(self, state, action, reward, next_state, done):
-        self.replay_buffer.append((self.prepare_image(state), action, reward, next_state, done))
-
     def act(self, input):
 
-        img = self.prepare_image(input)
+        img = self.prepare_state(input)
         q = self.model.predict(img)
         prob = np.random.uniform(0, 1)
         if prob < self.epsilon:
