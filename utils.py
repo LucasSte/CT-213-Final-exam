@@ -9,7 +9,7 @@ def reward_engineering_space_invaders(state, action, reward, next_state, done, a
         if state[17] == 0:  # Caso nao ha mais inimigo (passou de fase)
             return reward + 100
         if next_state[17] < state[17]:  # Caso matou um inimigo
-            return reward - 5
+            return reward + 5
         return reward - 1  # Se não acontecer nada -> penalidade por tempo
     return reward
 
