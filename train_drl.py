@@ -35,7 +35,7 @@ for episodes in range(1, NUM_EPISODES + 1):
             env.render()  # Render the environment for visualization
         action = agent.act(state)
         next_state, reward, done, _ = env.step(action)
-        reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done, agent.agentType)
+        reward = reward_engineering_space_invaders(state, action, reward, next_state, done, agent.agentType)
         agent.append_experience(state, action, reward, next_state, done)
         state = next_state
         cumulative_reward = agent.gamma * cumulative_reward + reward

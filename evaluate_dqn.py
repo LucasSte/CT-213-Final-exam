@@ -16,7 +16,7 @@ def plot_points(point_list, style):
     plt.plot(x, y, style)
 
 
-RENDER = False
+RENDER = True
 NUM_EPISODES = 20  # Number of episodes used for evaluation
 # fig_format = 'png'  # Format used for saving matplotlib's figures
 fig_format = 'eps'
@@ -27,8 +27,8 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 tf.compat.v1.disable_eager_execution()
 
 # Initiating the Mountain Car environment
-# env, agent = create_env_agent('SpaceInvaders-ram-v0')
-env, agent = create_env_agent('SpaceInvaders-v0')
+env, agent = create_env_agent('SpaceInvaders-ram-v0')
+# env, agent = create_env_agent('SpaceInvaders-v0')
 
 
 # Checking if weights from previous learning session exists
@@ -55,7 +55,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         next_state, reward, done, _ = env.step(action)
         # Reshaping to keep compatibility with Keras
         # Making reward engineering to keep compatibility with how training was done
-        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done, agent.agentType)
+        # reward = reward_engineering_space_invaders(state[0], action, reward, next_state, done, agent.agentType)
         state = next_state
         # Accumulate reward
         cumulative_reward = agent.gamma * cumulative_reward + reward
@@ -74,4 +74,3 @@ plt.xlabel('Episode')
 plt.ylabel('Return')
 plt.savefig('dqn_evaluation.' + fig_format, format=fig_format)
 plt.show()
-

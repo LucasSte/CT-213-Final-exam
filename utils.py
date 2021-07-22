@@ -4,7 +4,11 @@ from dqn_agent import RAMAgent, ImageAgent
 def reward_engineering_space_invaders(state, action, reward, next_state, done, agentType):
     """cada inimigo a menos contabiliza 1pt. Cada vida perdida cotabiliza -10pts"""
     if agentType == "RAM":
-        return reward + (36 - state[17]) + (3 - state[73]) * 10
+        if state[17] == 0:
+            return reward - (3 - state[73]) * 50 + 100
+        if next_state[17] != state[17]:
+            return reward - (3 - state[73]) * 50 + 5
+        return reward - (3 - state[73]) * 50 - 1
     return reward
 
 def create_env_agent(env_type: str):
