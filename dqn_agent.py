@@ -38,7 +38,7 @@ class DQNAgent:
             else:
                 targets[idx][action] = reward
             # Filtering out states and targets for training
-        history = self.model.fit(states, targets, epochs=1, verbose=1)
+        history = self.model.fit(states, targets, epochs=1, verbose=0)
         # Keeping track of loss
         loss = history.history['loss'][0]
         return loss

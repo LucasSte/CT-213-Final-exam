@@ -2,8 +2,7 @@ import os
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
-from dqn_agent import DQNAgent, RAMAgent
-from utils import create_env_agent
+from network import DeepQnetwork
 import tensorflow as tf
 
 
@@ -27,8 +26,11 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 tf.compat.v1.disable_eager_execution()
 
 # Initiating the Mountain Car environment
-# env, agent = create_env_agent('SpaceInvaders-ram-v0')
-env, agent = create_env_agent('SpaceInvaders-v0')
+env = gym.make('SpaceInvaders-ram-v0')
+state_size = env.observation_space.shape[0]
+action_size = env.action_space.n
+batch_size = 512  # batch size used for the experience replay
+agent = DeepQnetwork(state_size, action_size, 'ddqn.h5', batch_size=batch_size)
 
 
 # Checking if weights from previous learning session exists
@@ -45,14 +47,18 @@ for episodes in range(1, NUM_EPISODES + 1):
     state = env.reset()
     # Cumulative reward is the return since the beginning of the episode
     cumulative_reward = 0.0
+    rewards = []
     for time in range(1, 5000):
         # Render the environment for visualization
         if RENDER:
             env.render()
-        # Select action
-        action = agent.act(state)
+        #state = np.reshape(state, (1, state_size))
+        action = agent.get_greedy_action(state)
         # Take action, observe reward and new state
+        #print(action)
         next_state, reward, done, _ = env.step(action)
+        rewards.append(reward)
+        #reward = np.clip(reward, -1, 1)
         # Reshaping to keep compatibility with Keras
         # Making reward engineering to keep compatibility with how training was done
         # reward = reward_engineering_space_invaders(state[0], action, reward, next_state[0], done)
@@ -60,8 +66,8 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Accumulate reward
         cumulative_reward = agent.gamma * cumulative_reward + reward
         if done:
-            print("episode: {}/{}, time: {}, score: {:.6}, epsilon: {:.3}"
-                  .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon))
+            print("episode: {}/{}, time: {}, score: {:.6}, epsilon: {:.3}, total reward: {}"
+                  .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon, np.sum(np.array(rewards))))
             break
     return_history.append(cumulative_reward)
 
