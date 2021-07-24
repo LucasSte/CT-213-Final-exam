@@ -3,15 +3,14 @@ import numpy as np
 import gym
 import matplotlib.pyplot as plt
 from network import DeepQnetwork
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-NUM_EPISODES = 300
+NUM_EPISODES = 50
 RENDER = False  # please change to false after
 #  fig_format = 'png'
 fig_format = 'eps'
 
 # Comment this line to enable training using your GPU
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Initiating the Space Invaders environment
 # env, agent = create_env_agent('SpaceInvaders-ram-v0')
@@ -41,7 +40,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         state = np.reshape(state, (1, state_size))
         action = agent.get_action(state)
         next_state, reward, done, _ = env.step(action)
-        #reward = np.clip(reward, -1, 1)
+        reward = np.clip(reward, -1, 1)
         next_state = np.reshape(next_state, (1, state_size))
         # reward = reward_engineering_space_invaders(state, action, reward, next_state[0], done)
         agent.add_memory(state, action, next_state, reward, done)
@@ -53,8 +52,8 @@ for episodes in range(1, NUM_EPISODES + 1):
             break
         if len(agent.previous_memory) > 2 * batch_size and time % 50 == 0:
             loss = agent.train()
-    #if time > 0 and time % 100 == 0:
-    agent.update_prediction_network()
+        if time > 0 and time % 100 == 0:
+            agent.update_prediction_network()
     return_history.append(cumulative_reward)
     agent.update_epsilon()
     if episodes % 5 == 0:

@@ -16,7 +16,7 @@ def plot_points(point_list, style):
 
 
 RENDER = False
-NUM_EPISODES = 100  # Number of episodes used for evaluation
+NUM_EPISODES = 20  # Number of episodes used for evaluation
 # fig_format = 'png'  # Format used for saving matplotlib's figures
 fig_format = 'eps'
 
@@ -42,7 +42,6 @@ else:
     exit(-1)
 return_history = []
 
-reward_history = []
 for episodes in range(1, NUM_EPISODES + 1):
     # Reset the environment
     state = env.reset()
@@ -67,10 +66,8 @@ for episodes in range(1, NUM_EPISODES + 1):
         # Accumulate reward
         cumulative_reward = agent.gamma * cumulative_reward + reward
         if done:
-            rw = np.sum(np.array(rewards))
-            reward_history.append(rw)
             print("episode: {}/{}, time: {}, score: {:.6}, epsilon: {:.3}, total reward: {}"
-                  .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon, rw))
+                  .format(episodes, NUM_EPISODES, time, cumulative_reward, agent.epsilon, np.sum(np.array(rewards))))
             break
     return_history.append(cumulative_reward)
 
@@ -82,11 +79,5 @@ plt.plot(return_history, 'b')
 plt.xlabel('Episode')
 plt.ylabel('Return')
 plt.savefig('dqn_evaluation.' + fig_format, format=fig_format)
-plt.show()
-
-plt.plot(reward_history, 'b')
-plt.xlabel('Episode')
-plt.ylabel('Total reward')
-plt.savefig('dqn_evaluation_rw.' + fig_format, format=fig_format)
 plt.show()
 
