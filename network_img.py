@@ -5,7 +5,9 @@ import numpy as np
 from collections import deque
 
 
-class DeepQnetwork:
+class DeepQnetworkImg:
+
+    new_image_size = (210, 160)
 
     def __init__(self, state_size, action_size, name, batch_size):
         self.epsilon, self.epsilon_min = 1.0, 0.01
@@ -55,12 +57,12 @@ class DeepQnetwork:
 
     def get_prediction(self, states):
         # print(np.shape(states))
-        states = np.reshape(states, newshape=(states.shape[0], self.state_size))
+        states = np.reshape(states, newshape=(states.shape[0], self.new_image_size[0], self.new_image_size[1], 3)) / 255
         prediction = self.predict_network(states)
         return prediction
 
     def predict(self, states):
-        states = np.reshape(states, newshape=(states.shape[0], self.state_size))
+        states = np.reshape(states, newshape=(states.shape[0], self.new_image_size[0], self.new_image_size[1], 3)) / 255
         prediction = self.train_network(states)
         return prediction
 
@@ -76,10 +78,11 @@ class DeepQnetwork:
 
     def build_network(self):
 
-        inp = tf.keras.layers.Input((self.state_size, ))
-        x = tf.keras.layers.Dense(128, activation='relu')(inp)
-        x = tf.keras.layers.Dense(512, activation='relu')(x)
-        x = tf.keras.layers.Dense(128, activation='linear')(x)
+        inp = tf.keras.layers.Input((self.new_image_size[0], self.new_image_size[1], 3))
+        x = tf.keras.layers.Conv2D(32, (8, 8), strides=(2, 2), activation='relu')(inp)
+        x = tf.keras.layers.Conv2D(64, (4, 4), strides=(2, 2), activation='relu')(x)
+        x = tf.keras.layers.Conv2D(128, (3, 3), strides=(2, 2), activation='relu')(x)
+        x = tf.keras.layers.Flatten()(x)
         x = tf.keras.layers.Dense(self.action_size, activation='linear')(x)
         model = tf.keras.Model(inputs=inp, outputs=x)
         model.summary()
@@ -97,7 +100,7 @@ class DeepQnetwork:
         current_action_qs = self.predict(current_nodes)
         next_action_qs = self.get_prediction(next_nodes)
         current_action_qs = self.update_q_value(rewards, current_action_qs, next_action_qs, actions, done)
-        current_nodes = np.reshape(current_nodes, newshape=(self.batch_size, self.state_size))
+        current_nodes = np.reshape(current_nodes, newshape=(self.batch_size, self.new_image_size[0], self.new_image_size[1], 3)) / 255
 
         loss = self.train_step(current_nodes, current_action_qs)
         #print(f'loss: {loss}')

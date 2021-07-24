@@ -2,7 +2,7 @@ import os
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
-from network import DeepQnetwork
+from network_img import DeepQnetworkImg
 import tensorflow as tf
 
 
@@ -26,11 +26,11 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 tf.compat.v1.disable_eager_execution()
 
 # Initiating the Mountain Car environment
-env = gym.make('SpaceInvaders-ram-v0')
+env = gym.make('SpaceInvaders-v0')
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 batch_size = 512  # batch size used for the experience replay
-agent = DeepQnetwork(state_size, action_size, 'ddqn.h5', batch_size=batch_size)
+agent = DeepQnetworkImg(state_size, action_size, 'ddqn.h5', batch_size=batch_size)
 
 
 # Checking if weights from previous learning session exists
