@@ -9,7 +9,7 @@ class DeepQnetwork:
 
     def __init__(self, state_size, action_size, name, batch_size):
         self.epsilon, self.epsilon_min = 1.0, 0.01
-        self.epsilon_decay = 0.95
+        self.epsilon_decay = 0.99
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
         self.name = name
         self.gamma = 0.99
