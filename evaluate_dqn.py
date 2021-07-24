@@ -2,31 +2,29 @@ import os
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
-from network import DeepQnetwork
+from network import AgentDoubleDQN
 import tensorflow as tf
 
 
 RENDER = False
-NUM_EPISODES = 300  # Number of episodes used for evaluation
+NUM_EPISODES = 300
 fig_format = 'eps'
 
-# Comment this line to enable training using your GPU
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 tf.compat.v1.disable_eager_execution()
 
-# Initiating the Mountain Car environment
 env = gym.make('SpaceInvaders-ram-v0')
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 batch_size = 512  # batch size used for the experience replay
-agent = DeepQnetwork(state_size, action_size, 'ddqn.h5', batch_size=batch_size)
+agent = AgentDoubleDQN(state_size, action_size, batch_size=batch_size)
 
 
 # Checking if weights from previous learning session exists
-if os.path.exists(agent.__class__.__name__ + 'new_space_invaders.h5'):
+if os.path.exists(agent.__class__.__name__ + 'space_invaders.h5'):
     print('Loading weights from previous learning session.')
-    agent.load(agent.__class__.__name__, "new_space_invaders.h5")
+    agent.load(agent.__class__.__name__, "space_invaders.h5")
 else:
     print('No weights found from previous learning session. Unable to proceed.')
     exit(-1)
@@ -65,12 +63,12 @@ print('Mean total time: ', np.mean(time_history))
 plt.plot(return_history, 'b')
 plt.xlabel('Episode')
 plt.ylabel('Return')
-plt.savefig('dqn_evaluation3.' + fig_format, format=fig_format)
+plt.savefig('dqn_evaluation_cumulative_rw.' + fig_format, format=fig_format)
 plt.show()
 
 plt.plot(reward_history, 'b')
 plt.xlabel('Episode')
 plt.ylabel('Total reward')
-plt.savefig('dqn_evaluation_rw3.' + fig_format, format=fig_format)
+plt.savefig('dqn_evaluation_total_rw.' + fig_format, format=fig_format)
 plt.show()
 
