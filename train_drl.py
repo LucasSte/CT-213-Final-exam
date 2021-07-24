@@ -3,6 +3,7 @@ import numpy as np
 import gym
 import matplotlib.pyplot as plt
 from network import AgentDoubleDQN
+from utils import reward_engineering_space_invaders
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 NUM_EPISODES = 300
@@ -32,7 +33,7 @@ for episodes in range(1, NUM_EPISODES + 1):
         next_state, reward, done, _ = env.step(action)
         ep_rw.append(reward)
         next_state = np.reshape(next_state, (1, state_size))
-        agent.add_memory(state, action, next_state, reward, done)
+        agent.add_memory(state, action, next_state, reward_engineering_space_invaders(state[0], reward, next_state[0]), done)
         state = next_state
         cumulative_reward = agent.gamma * cumulative_reward + reward
         if done:
