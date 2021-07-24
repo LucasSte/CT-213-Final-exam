@@ -23,7 +23,7 @@ class DeepQnetwork:
 
     def update_prediction_network(self):
         for train_grad, pred_grad in zip(self.train_network.trainable_variables,
-                                         self.train_network.trainable_variables):
+                                         self.predict_network.trainable_variables):
             pred_grad.assign(train_grad)
         self.train_network.save_weights(self.name)
         #print("leveling up")
@@ -79,7 +79,7 @@ class DeepQnetwork:
         inp = tf.keras.layers.Input((self.state_size, ))
         x = tf.keras.layers.Dense(128, activation='relu')(inp)
         x = tf.keras.layers.Dense(512, activation='relu')(x)
-        x = tf.keras.layers.Dense(128, activation='linear')(x)
+        x = tf.keras.layers.Dense(128, activation='relu')(x)
         x = tf.keras.layers.Dense(self.action_size, activation='linear')(x)
         model = tf.keras.Model(inputs=inp, outputs=x)
         model.summary()
